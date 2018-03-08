@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-#define PASSWORD_LENGTH 6
-#define PASSWORDS 5
+#define FILENAME_TO_CREATE "soluzione.txt"
+#define TEXT_TO_WRITE_IN_FILE "soluzione"
 
 #define ATTEMPTS 5
 
@@ -100,8 +100,6 @@ void displayPasswords(stringa *passwords)
     int i = 0;
     int randomNumber;
 
-    //shuffle(passwords, sizeof(passwords));
-
     while(i<passwordsNumber)
     {
         randomNumber = rand()%256;
@@ -154,7 +152,11 @@ stringa lastPassword(stringa *passwords){
 }
 
 void createFile(){
+    FILE *fp = fopen(FILENAME_TO_CREATE, "w+");
 
+    fprintf(fp, "%s", TEXT_TO_WRITE_IN_FILE);
+
+    fclose(fp);
 }
 
 void displayRandomNumbersAndSymbols(int length){
