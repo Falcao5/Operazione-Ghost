@@ -6,8 +6,6 @@
 #define FILENAME_TO_CREATE "soluzione.txt"
 #define TEXT_TO_WRITE_IN_FILE "soluzione"
 
-#define ATTEMPTS 5
-
 
 typedef char *stringa;
 
@@ -16,7 +14,8 @@ stringa fileToRead = "passwords.txt";
 int passwordLength = 0;
 int passwordsNumber = 0;
 
-void calculatePasswordsLength(char *fileName){
+void calculatePasswordsLength(char *fileName)
+{
     FILE* file = fopen(fileName, "r"); /* should check the result */
     stringa line = (stringa)malloc(100*sizeof(char));
     fgets(line, 100*2, file);
@@ -26,7 +25,8 @@ void calculatePasswordsLength(char *fileName){
     fclose(file);
 }
 
-void calculatePasswordsNumber(char *fileName){
+void calculatePasswordsNumber(char *fileName)
+{
     int result = 0;
     FILE* file = fopen(fileName, "r"); /* should check the result */
     stringa line = (stringa)malloc(100*sizeof(char));
@@ -92,6 +92,38 @@ void shuffle(stringa *array, int n)
     }
 }
 
+void displayRandomNumbersAndSymbols(int length)
+{
+    int i = 0;
+    int randomI = rand() % 256;
+    char randomC = 'A' + (rand() % 26);
+
+    while(i<length)
+    {
+        if(i%2==0)
+        {
+            randomI = rand()%64;
+            randomC = 'a' + (rand() % 26);
+        }
+        if(i%4==0)
+        {
+            randomI = rand()%128;
+            randomC = '0' + (rand() % 26);
+        }
+        if(i%8==0)
+        {
+            randomI = rand()%256;
+            randomC = 'A' + (rand() % 26);
+        }
+
+        printf("%d", randomI);
+        printf("%c", randomC);
+
+        randomC = '@' + (rand() % 26);
+        i++;
+    }
+}
+
 /** This function shuffles the array containing all the passwords, then prints it shuffled         *
 *** VALIDATED, IT WORKS FINE.                                                                       *
 *** MISSING GUI                                                                                     */
@@ -111,11 +143,13 @@ void displayPasswords(stringa *passwords)
     printf("\n");
 }
 
-int occurrencesCounter(stringa inputPasswordFromKeyboard, stringa rightPassword){
+int occurrencesCounter(stringa inputPasswordFromKeyboard, stringa rightPassword)
+{
     int result = 0;
     int i = 0;
 
-    for(i=0; i<(passwordLength-1); i++){
+    for(i=0; i<(passwordLength-1); i++)
+    {
         if(inputPasswordFromKeyboard[i] == rightPassword[i])
             result++;
     }
@@ -125,7 +159,8 @@ int occurrencesCounter(stringa inputPasswordFromKeyboard, stringa rightPassword)
 
 /** This function controls the password inserted by user.               *
 *** Sets the unlocked global variable as 1 if the password is correct   */
-void passwordCheck(stringa inputPasswordFromKeyboard, int *unlocked, stringa rightPassword){
+void passwordCheck(stringa inputPasswordFromKeyboard, int *unlocked, stringa rightPassword)
+{
     if(strcmp(inputPasswordFromKeyboard, rightPassword) == 0)
         *unlocked = 1;
 }
@@ -138,51 +173,31 @@ void passwordCheck(stringa inputPasswordFromKeyboard, int *unlocked, stringa rig
 ***                                                         *
 *** messageToShow(passwordInserted1) = 0/10                 *
 *** messageToShow(passwordInserted2) = 5/10                 */
-void messageToShow(stringa inputPasswordFromKeyboard, int *unlocked, stringa rightPassword){
+void messageToShow(stringa inputPasswordFromKeyboard, int *unlocked, stringa rightPassword)
+{
     passwordCheck(inputPasswordFromKeyboard, unlocked, rightPassword);
     if(*unlocked == 1)
-        printf("%s", "Unlocked.\n");
-    else{
+    {
+        printf("%s", "Unlocked. Password file created. Press Enter to exit and delete it.\n");
+    }
+    else
+    {
         printf("Locked. %d/%d Correct\n", occurrencesCounter(inputPasswordFromKeyboard,rightPassword),(passwordLength));
     }
 }
 
-stringa lastPassword(stringa *passwords){
+stringa lastPassword(stringa *passwords)
+{
     return passwords[passwordsNumber-1];
 }
 
-void createFile(){
+void createFile()
+{
     FILE *fp = fopen(FILENAME_TO_CREATE, "w+");
 
     fprintf(fp, "%s", TEXT_TO_WRITE_IN_FILE);
 
     fclose(fp);
-}
-
-void displayRandomNumbersAndSymbols(int length){
-    int i = 0;
-    int randomI = rand() % 256;
-    char randomC = 'A' + (rand() % 26);
-    while(i<length){
-        if(i%2==0){
-            randomI = rand()%64;
-            randomC = 'a' + (rand() % 26);
-        }
-        if(i%4==0){
-            randomI = rand()%128;
-            randomC = '0' + (rand() % 26);
-        }
-        if(i%8==0){
-            randomI = rand()%256;
-            randomC = 'A' + (rand() % 26);
-        }
-
-        printf("%d", randomI);
-        printf("%c", randomC);
-
-        randomC = '@' + (rand() % 26);
-        i++;
-    }
 }
 
 int main()
@@ -195,29 +210,22 @@ int main()
     shuffle(passwords, passwordsNumber-1);
     displayPasswords(passwords);
 
-    int attemptsRemaining = ATTEMPTS;
     int *unlocked = (int*)malloc(sizeof(int));
     *unlocked = 0;
     stringa inputPasswordFromKeyboard;
 
-    while(attemptsRemaining>0)
+    while(*unlocked==0)
     {
-        if(*unlocked == 1)
-        {
-            createFile();
-            return 0;
-        }
-
         inputPasswordFromKeyboard = (stringa)malloc(10*passwordsNumber*sizeof(char));
         scanf("%s", inputPasswordFromKeyboard);
         messageToShow(inputPasswordFromKeyboard, unlocked, rightPassword);
-
-        attemptsRemaining--;
-
     }
 
-    if(*unlocked==0)
-        printf("Locked terminal. Shutting down.");
+    if(*unlocked == 1)
+    {
+        createFile();
+        return 0;
+    }
 
     return 0;
 }
