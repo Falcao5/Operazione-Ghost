@@ -4,12 +4,11 @@
 #include <time.h>
 
 #define FILENAME_TO_CREATE "soluzione.txt"
-#define TEXT_TO_WRITE_IN_FILE "soluzione"
-
+#define FILENAME_RIGHT_PASSWORD "rightPassword.txt"
+#define FILENAME_TO_READ "passwords.txt"
+#define FILENAME_SOLUTION "solution.txt"
 
 typedef char *stringa;
-
-stringa fileToRead = "passwords.txt";
 
 int passwordLength = 0;
 int passwordsNumber = 0;
@@ -178,7 +177,7 @@ void messageToShow(stringa inputPasswordFromKeyboard, int *unlocked, stringa rig
     passwordCheck(inputPasswordFromKeyboard, unlocked, rightPassword);
     if(*unlocked == 1)
     {
-        printf("%s", "Unlocked. Password file created. Press Enter to exit and delete it.\n");
+        printf("%s", "Unlocked. File created.\n");
     }
     else
     {
@@ -186,27 +185,45 @@ void messageToShow(stringa inputPasswordFromKeyboard, int *unlocked, stringa rig
     }
 }
 
-stringa lastPassword(stringa *passwords)
+/**
+*** returns the correct password read from the txt hidden file
+*/
+stringa correctPassword()
 {
-    return passwords[passwordsNumber-1];
-}
+    FILE *fp = fopen(FILENAME_RIGHT_PASSWORD, "r");
+    stringa result = (stringa)malloc(sizeof(stringa));
 
-void createFile()
-{
-    FILE *fp = fopen(FILENAME_TO_CREATE, "w+");
-
-    fprintf(fp, "%s", TEXT_TO_WRITE_IN_FILE);
+    fscanf(fp, "%s", result);
 
     fclose(fp);
+
+    return result;
+}
+
+/**
+*** creates a file named FILENAME_TO_CREATE, and writes in this file the content inside FILENAME_SOLUTION
+***/
+void createFile()
+{
+    FILE *fpToCreate = fopen(FILENAME_TO_CREATE, "w+");
+    FILE *solution = fopen(FILENAME_SOLUTION, "r");
+
+    stringa temp = (stringa)malloc(sizeof(stringa));
+    fscanf(solution, "%s", temp);
+
+    fprintf(fpToCreate, "%s", temp);
+
+    fclose(fpToCreate);
+    fclose(solution);
 }
 
 int main()
 {
     displayRandomNumbersAndSymbols(20000);
 
-    stringa *passwords = readPasswordsFromFile(fileToRead);
+    stringa *passwords = readPasswordsFromFile(FILENAME_TO_READ);
     stringa rightPassword = (stringa)malloc(passwordLength*sizeof(char));
-    strcpy(rightPassword,lastPassword(passwords));
+    strcpy(rightPassword, correctPassword());
     shuffle(passwords, passwordsNumber-1);
     displayPasswords(passwords);
 
